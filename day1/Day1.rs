@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 
@@ -11,11 +12,22 @@ fn main() {
         list1.push(*pair.first().unwrap()); 
         list2.push(*pair.last().unwrap());
     });
-
     list1.sort();
     list2.sort();
-    let sorted_pairs = list1.iter().zip(list2.iter());
-    let result: i32 = sorted_pairs.map(|(x, y)| (x - y).abs()).sum();
+    
+    println!("{}", calculate_total_distance(&list1, &list2));
+    println!("{}", calculate_similarity_score(&list1, &list2));
+}
 
-    println!("{}", result);
+fn calculate_total_distance(list1: &Vec<i32>, list2: &Vec<i32>) -> i32 {
+    let sorted_pairs = list1.iter().zip(list2.iter());
+    sorted_pairs.map(|(x, y)| (x - y).abs()).sum()
+}
+
+fn calculate_similarity_score(list1: &Vec<i32>, list2: &Vec<i32>) -> i32 {
+    let mut counts: HashMap<i32, i32> = list2.iter().fold(HashMap::new(), |mut counts_acc, y| {
+        counts_acc.entry(*y).and_modify(|y_count| *y_count += 1).or_insert(1);
+        counts_acc
+    });
+    list1.iter().map(|x| x * *counts.entry(*x).or_insert(0)).sum()
 }
